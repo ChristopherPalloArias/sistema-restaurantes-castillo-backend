@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
 
     public UserServiceImpl(UserRepository userRepository) {
@@ -20,6 +21,7 @@ public class UserServiceImpl implements UserService {
     public User save(User user) {
         return userRepository.save(user);
     }
+
     @Override
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
@@ -36,7 +38,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteById(Long id) {
-        userRepository.deleteById(id);
+    public List<User> findAllActive() {
+        return userRepository.findByActiveTrue();
+    }
+
+    @Override
+    public void disableById(Long id) {
+        userRepository.findById(id).ifPresent(user -> {
+            user.setActive(false);
+            userRepository.save(user);
+        });
     }
 }

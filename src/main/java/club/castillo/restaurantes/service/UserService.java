@@ -8,6 +8,7 @@ public interface UserService {
     User save(User user);
     Optional<User> findById(Long id);
     Optional<User> findByEmail(String email);
-    List<User> findAll();
-    void deleteById(Long id);
+    List<User> findAll(); // incluye activos e inactivos
+    List<User> findAllActive(); // solo activos
+    void disableById(Long id); // soft delete
 }

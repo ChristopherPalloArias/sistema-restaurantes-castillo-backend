@@ -9,6 +9,7 @@ public interface ProductService {
     Product save(Product product);
     List<Product> findAll();
     List<Product> findAvailable();
+    List<Product> findAllActive();
     Optional<Product> findById(Long id);
-    void deleteById(Long id);
+    void disableById(Long id); // soft delete
 }

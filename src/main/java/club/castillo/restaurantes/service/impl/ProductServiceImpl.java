@@ -33,12 +33,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<Product> findAllActive() {
+        return productRepository.findByActiveTrue();
+    }
+
+    @Override
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
     }
 
     @Override
-    public void deleteById(Long id) {
-        productRepository.deleteById(id);
+    public void disableById(Long id) {
+        productRepository.findById(id).ifPresent(product -> {
+            product.setActive(false);
+            productRepository.save(product);
+        });
     }
 }
+
