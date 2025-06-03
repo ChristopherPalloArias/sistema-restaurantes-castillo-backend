@@ -31,4 +31,7 @@ public class Customer {
 
     @Column(name = "joined_at")
     private LocalDate joinedAt;
+
+    @Column(nullable = false)
+    private Boolean active = true;
 }

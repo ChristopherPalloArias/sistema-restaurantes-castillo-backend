@@ -26,4 +26,8 @@ public class RestaurantTable {
 
     @Column(length = 20)
     private String status = "available";
+
+    @Column(nullable = false)
+    private Boolean active = true;
+
 }

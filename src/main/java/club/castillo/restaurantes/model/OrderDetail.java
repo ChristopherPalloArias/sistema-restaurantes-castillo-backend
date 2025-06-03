@@ -27,4 +27,8 @@ public class OrderDetail {
 
     @Column(columnDefinition = "TEXT")
     private String note;
+
+    @Column(nullable = false)
+    private Boolean active = true;
+
 }

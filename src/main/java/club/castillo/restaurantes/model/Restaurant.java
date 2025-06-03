@@ -29,4 +29,8 @@ public class Restaurant {
 
     @OneToMany(mappedBy = "restaurant")
     private List<RestaurantTable> tables;
+
+    @Column(nullable = false)
+    private Boolean active = true;
+
 }

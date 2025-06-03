@@ -18,4 +18,8 @@ public class MenuProduct {
 
     @ManyToOne @JoinColumn(name = "product_id")
     private Product product;
+
+    @Column(nullable = false)
+    private Boolean active = true;
+
 }

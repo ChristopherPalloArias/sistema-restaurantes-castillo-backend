@@ -19,4 +19,8 @@ public class Zone {
 
     @OneToMany(mappedBy = "zone")
     private List<RestaurantTable> tables;
+
+    @Column(nullable = false)
+    private Boolean active = true;
+
 }

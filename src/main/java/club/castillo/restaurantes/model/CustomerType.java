@@ -19,4 +19,7 @@ public class CustomerType {
 
     @OneToMany(mappedBy = "customerType")
     private List<Customer> customers;
+
+    @Column(nullable = false)
+    private Boolean active = true;
 }

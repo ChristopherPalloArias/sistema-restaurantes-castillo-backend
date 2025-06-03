@@ -29,4 +29,7 @@ public class Menu {
 
     @OneToMany(mappedBy = "menu")
     private List<MenuProduct> products;
+
+    @Column(nullable = false)
+    private Boolean active = true;
 }

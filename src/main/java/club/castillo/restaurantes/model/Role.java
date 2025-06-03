@@ -19,4 +19,8 @@ public class Role {
 
     @OneToMany(mappedBy = "role")
     private List<User> users;
+
+    @Column(nullable = false)
+    private Boolean active = true;
+
 }

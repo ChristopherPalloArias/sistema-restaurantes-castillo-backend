@@ -25,4 +25,8 @@ public class QrCode {
 
     @Column(name = "generated_at")
     private LocalDateTime generatedAt = LocalDateTime.now();
+
+    @Column(nullable = false)
+    private Boolean active = true;
+
 }

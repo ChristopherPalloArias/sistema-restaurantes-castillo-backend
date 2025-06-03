@@ -37,4 +37,8 @@ public class Product {
 
     @OneToMany(mappedBy = "product")
     private List<ProductPrice> customPrices;
+
+    @Column(nullable = false)
+    private Boolean active = true;
+
 }

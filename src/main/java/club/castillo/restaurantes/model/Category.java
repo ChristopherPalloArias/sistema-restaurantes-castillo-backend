@@ -23,4 +23,7 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
+
+    @Column(nullable = false)
+    private Boolean active = true;
 }

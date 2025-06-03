@@ -41,4 +41,8 @@ public class Order {
 
     @OneToOne(mappedBy = "order")
     private QrCode qrCodeRef;
+
+    @Column(nullable = false)
+    private Boolean active = true;
+
 }
