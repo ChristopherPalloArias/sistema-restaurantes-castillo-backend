@@ -31,4 +31,9 @@ public class QrCodeController {
     public ResponseEntity<QrCodeResponseDTO> getQr(@PathVariable Long id) {
         return ResponseEntity.ok(qrCodeService.getQrCodeById(id));
     }
+
+    @GetMapping("/{id}/validate")
+    public ResponseEntity<QrCodeResponseDTO> validateQr(@PathVariable Long id) {
+        return ResponseEntity.ok(qrCodeService.validateQrCode(id));
+    }
 }

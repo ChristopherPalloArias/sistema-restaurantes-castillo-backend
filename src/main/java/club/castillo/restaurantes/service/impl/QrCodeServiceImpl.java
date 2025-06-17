@@ -65,6 +65,17 @@ public class QrCodeServiceImpl implements QrCodeService {
         return mapToDto(qrCode);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public QrCodeResponseDTO validateQrCode(Long id) {
+        QrCode qrCode = qrCodeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Código QR no encontrado"));
+        if (!Boolean.TRUE.equals(qrCode.getActive())) {
+            throw new IllegalStateException("Código QR inactivo");
+        }
+        return mapToDto(qrCode);
+    }
+
     private String generateBase64Qr(String text) {
         try {
             BitMatrix matrix = new MultiFormatWriter()
