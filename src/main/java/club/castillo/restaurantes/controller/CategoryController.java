@@ -5,6 +5,7 @@ import club.castillo.restaurantes.dto.CategoryResponseDTO;
 import club.castillo.restaurantes.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,11 +19,13 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO request) {
         return ResponseEntity.ok(categoryService.createCategory(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponseDTO> updateCategory(
             @PathVariable Long id,
             @Valid @RequestBody CategoryRequestDTO request) {
@@ -45,12 +48,14 @@ public class CategoryController {
     }
 
     @PatchMapping("/{id}/disable")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> disableCategory(@PathVariable Long id) {
         categoryService.disableById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/enable")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> enableCategory(@PathVariable Long id) {
         categoryService.enableById(id);
         return ResponseEntity.noContent().build();

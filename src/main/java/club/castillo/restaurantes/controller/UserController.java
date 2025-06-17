@@ -9,6 +9,7 @@ import club.castillo.restaurantes.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +33,7 @@ public class UserController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody UserRequestDTO requestDTO) {
         Role role = roleService.findById(requestDTO.getRoleId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid role ID"));
@@ -50,6 +52,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDTO>> getAllActive() {
         List<UserResponseDTO> users = userService.findAllActive()
                 .stream()
@@ -60,6 +63,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponseDTO> getById(@PathVariable Long id) {
         Optional<User> userOpt = userService.findById(id);
         return userOpt.map(user -> ResponseEntity.ok(toResponseDTO(user)))
@@ -67,12 +71,14 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/disable")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> disable(@PathVariable Long id) {
         userService.disableById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/enable")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> enable(@PathVariable Long id) {
         userService.enableById(id);
         return ResponseEntity.noContent().build();
