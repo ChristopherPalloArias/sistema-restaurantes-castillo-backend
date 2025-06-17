@@ -1,6 +1,8 @@
 package club.castillo.restaurantes.service.impl;
 
 import club.castillo.restaurantes.dto.MenuResponseDTO;
+import club.castillo.restaurantes.dto.MenuRequestDTO;
+import club.castillo.restaurantes.dto.MenuAdminResponseDTO;
 import club.castillo.restaurantes.model.*;
 import club.castillo.restaurantes.repository.*;
 import club.castillo.restaurantes.service.MenuService;
@@ -25,6 +27,8 @@ public class MenuServiceImpl implements MenuService {
     private final ProductPriceRepository productPriceRepository;
     private final ProductSizeRepository productSizeRepository;
     private final ProductAccompanimentRepository productAccompanimentRepository;
+    private final MenuRepository menuRepository;
+    private final MenuProductRepository menuProductRepository;
 
     @Override
     public MenuResponseDTO getRestaurantMenu(Long restaurantId,
@@ -146,7 +150,102 @@ public class MenuServiceImpl implements MenuService {
     private boolean matchesSearchTerm(Product product, String searchTerm) {
         String termLower = searchTerm.toLowerCase();
         return product.getName().toLowerCase().contains(termLower) ||
-                (product.getDescription() != null && 
+                (product.getDescription() != null &&
                  product.getDescription().toLowerCase().contains(termLower));
     }
-} 
+
+    // ----- CRUD de menús -----
+
+    @Override
+    @Transactional(readOnly = false)
+    public MenuAdminResponseDTO createMenu(MenuRequestDTO requestDTO) {
+        Restaurant restaurant = restaurantRepository.findById(requestDTO.getRestaurantId())
+                .orElseThrow(() -> new EntityNotFoundException("Restaurante no encontrado"));
+
+        Menu menu = Menu.builder()
+                .name(requestDTO.getName())
+                .description(requestDTO.getDescription())
+                .restaurant(restaurant)
+                .createdAt(LocalDateTime.now())
+                .active(true)
+                .build();
+
+        Menu saved = menuRepository.save(menu);
+        return mapToAdminResponse(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public MenuAdminResponseDTO updateMenu(Long id, MenuRequestDTO requestDTO) {
+        Menu menu = menuRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Menú no encontrado"));
+
+        if (!menu.getRestaurant().getId().equals(requestDTO.getRestaurantId())) {
+            Restaurant restaurant = restaurantRepository.findById(requestDTO.getRestaurantId())
+                    .orElseThrow(() -> new EntityNotFoundException("Restaurante no encontrado"));
+            menu.setRestaurant(restaurant);
+        }
+
+        menu.setName(requestDTO.getName());
+        menu.setDescription(requestDTO.getDescription());
+
+        Menu updated = menuRepository.save(menu);
+        return mapToAdminResponse(updated);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void assignProduct(Long menuId, Long productId) {
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new EntityNotFoundException("Menú no encontrado"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
+
+        MenuProduct relation = menuProductRepository.findByMenuIdAndProductId(menuId, productId)
+                .orElse(MenuProduct.builder()
+                        .menu(menu)
+                        .product(product)
+                        .build());
+
+        relation.setActive(true);
+        menuProductRepository.save(relation);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void unassignProduct(Long menuId, Long productId) {
+        MenuProduct relation = menuProductRepository.findByMenuIdAndProductId(menuId, productId)
+                .orElseThrow(() -> new EntityNotFoundException("Relación menú-producto no encontrada"));
+        relation.setActive(false);
+        menuProductRepository.save(relation);
+    }
+
+    private MenuAdminResponseDTO mapToAdminResponse(Menu menu) {
+        MenuAdminResponseDTO.RestaurantDTO restaurantDTO = null;
+        if (menu.getRestaurant() != null) {
+            restaurantDTO = MenuAdminResponseDTO.RestaurantDTO.builder()
+                    .id(menu.getRestaurant().getId())
+                    .name(menu.getRestaurant().getName())
+                    .build();
+        }
+
+        List<MenuAdminResponseDTO.ProductDTO> products = Optional.ofNullable(menu.getProducts())
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(MenuProduct::getActive)
+                .map(mp -> MenuAdminResponseDTO.ProductDTO.builder()
+                        .id(mp.getProduct().getId())
+                        .name(mp.getProduct().getName())
+                        .build())
+                .collect(Collectors.toList());
+
+        return MenuAdminResponseDTO.builder()
+                .id(menu.getId())
+                .name(menu.getName())
+                .description(menu.getDescription())
+                .active(menu.getActive())
+                .restaurant(restaurantDTO)
+                .products(products)
+                .build();
+    }
+}
