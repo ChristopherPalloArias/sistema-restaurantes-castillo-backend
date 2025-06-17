@@ -14,6 +14,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendOrderUpdate(OrderResponseDTO order) {
-        messagingTemplate.convertAndSend("/topic/orders", order);
+        String destination = "/topic/orders/" + order.getRestaurantId();
+        messagingTemplate.convertAndSend(destination, order);
     }
 }
