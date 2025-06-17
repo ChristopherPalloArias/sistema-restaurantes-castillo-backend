@@ -18,8 +18,18 @@ public class Category {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(name = "control_type", nullable = false, length = 20)
-    private String controlType;
+    @Column(length = 500)
+    private String description;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "category_type", nullable = false, length = 20)
+    private String categoryType; // "CLUB_STANDARD" o "RESTAURANT_SPECIFIC"
+
+    @ManyToOne
+    @JoinColumn(name = "restaurant_id")
+    private Restaurant restaurant; // null si es CLUB_STANDARD
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;

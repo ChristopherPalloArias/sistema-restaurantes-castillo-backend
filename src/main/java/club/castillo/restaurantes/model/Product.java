@@ -2,8 +2,8 @@ package club.castillo.restaurantes.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.List;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -18,27 +18,34 @@ public class Product {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 500)
     private String description;
 
-    @Column(nullable = false, precision = 8, scale = 2)
-    private BigDecimal price;
+    @Column(name = "image_url")
+    private String imageUrl;
 
-    @Column(name = "fixed_price_club")
-    private Boolean fixedPriceClub = false;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal basePrice; // Precio base del producto
 
-    private Boolean available = true;
+    @Column(name = "is_customizable")
+    private Boolean isCustomizable = false;
 
-    @ManyToOne @JoinColumn(name = "category_id")
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @ManyToOne @JoinColumn(name = "created_by")
-    private User createdBy;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductPrice> prices;
 
-    @OneToMany(mappedBy = "product")
-    private List<ProductPrice> customPrices;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductSize> availableSizes;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<ProductAccompaniment> availableAccompaniments;
 
     @Column(nullable = false)
-    private Boolean active = true;
+    private Boolean available = true; // Si está disponible en el menú
 
+    @Column(nullable = false)
+    private Boolean active = true; // Para soft delete
 }

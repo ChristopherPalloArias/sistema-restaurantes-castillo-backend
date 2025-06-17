@@ -11,4 +11,5 @@ public interface UserService {
     List<User> findAll(); // incluye activos e inactivos
     List<User> findAllActive(); // solo activos
     void disableById(Long id); // soft delete
+    void enableById(Long id);
 }
