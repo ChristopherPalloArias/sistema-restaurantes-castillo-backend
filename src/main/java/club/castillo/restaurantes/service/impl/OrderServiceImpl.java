@@ -5,6 +5,7 @@ import club.castillo.restaurantes.dto.OrderResponseDTO;
 import club.castillo.restaurantes.model.*;
 import club.castillo.restaurantes.repository.*;
 import club.castillo.restaurantes.service.OrderService;
+import club.castillo.restaurantes.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductSizeRepository productSizeRepository;
     private final ProductAccompanimentRepository productAccompanimentRepository;
     private final ProductPriceRepository productPriceRepository;
+    private final NotificationService notificationService;
 
     @Override
     public OrderResponseDTO createOrder(OrderRequestDTO orderRequest) {
@@ -69,7 +71,9 @@ public class OrderServiceImpl implements OrderService {
         // Guardar orden
         Order savedOrder = orderRepository.save(order);
 
-        return mapToResponseDTO(savedOrder);
+        OrderResponseDTO response = mapToResponseDTO(savedOrder);
+        notificationService.sendOrderUpdate(response);
+        return response;
     }
 
     @Override
@@ -159,7 +163,9 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
 
-        return mapToResponseDTO(updatedOrder);
+        OrderResponseDTO response = mapToResponseDTO(updatedOrder);
+        notificationService.sendOrderUpdate(response);
+        return response;
     }
 
     @Override
