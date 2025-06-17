@@ -3,6 +3,7 @@ package club.castillo.restaurantes.controller;
 import club.castillo.restaurantes.dto.RestaurantRequestDTO;
 import club.castillo.restaurantes.dto.RestaurantResponseDTO;
 import club.castillo.restaurantes.service.RestaurantService;
+import club.castillo.restaurantes.model.RestaurantStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,8 +48,15 @@ public class RestaurantController {
 
     @GetMapping("/status/{status}")
     public ResponseEntity<List<RestaurantResponseDTO>> getRestaurantsByStatus(
-            @PathVariable String status) {
+            @PathVariable RestaurantStatus status) {
         return ResponseEntity.ok(restaurantService.getRestaurantsByStatus(status));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<RestaurantResponseDTO> updateRestaurantStatus(
+            @PathVariable Long id,
+            @RequestParam RestaurantStatus status) {
+        return ResponseEntity.ok(restaurantService.updateRestaurantStatus(id, status));
     }
 
     @PatchMapping("/{id}/disable")

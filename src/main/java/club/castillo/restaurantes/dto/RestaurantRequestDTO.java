@@ -3,6 +3,7 @@ package club.castillo.restaurantes.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import club.castillo.restaurantes.model.RestaurantStatus;
 
 @Getter
 @Setter
@@ -14,5 +15,5 @@ public class RestaurantRequestDTO {
 
     private Long managerId;
 
-    private String status; // abierto/cerrado
+    private RestaurantStatus status; // abierto/cerrado
 }

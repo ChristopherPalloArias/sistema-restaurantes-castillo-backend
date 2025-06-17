@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
 
+/**
+ * Restaurant entity.
+ */
+
 @Entity
 @Table(name = "restaurants")
 @Data
@@ -25,7 +29,8 @@ public class Restaurant {
     private User manager;
 
     @Column(length = 20)
-    private String status = "closed";
+    @Enumerated(EnumType.STRING)
+    private RestaurantStatus status = RestaurantStatus.CLOSED;
 
     @OneToMany(mappedBy = "restaurant")
     private List<RestaurantTable> tables;

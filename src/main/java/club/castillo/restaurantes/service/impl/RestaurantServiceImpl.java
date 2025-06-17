@@ -3,6 +3,7 @@ package club.castillo.restaurantes.service.impl;
 import club.castillo.restaurantes.dto.RestaurantRequestDTO;
 import club.castillo.restaurantes.dto.RestaurantResponseDTO;
 import club.castillo.restaurantes.model.Restaurant;
+import club.castillo.restaurantes.model.RestaurantStatus;
 import club.castillo.restaurantes.model.User;
 import club.castillo.restaurantes.repository.RestaurantRepository;
 import club.castillo.restaurantes.repository.UserRepository;
@@ -29,7 +30,7 @@ public class RestaurantServiceImpl implements RestaurantService {
         Restaurant restaurant = new Restaurant();
         restaurant.setName(requestDTO.getName());
         restaurant.setAddress(requestDTO.getAddress());
-        restaurant.setStatus(Optional.ofNullable(requestDTO.getStatus()).orElse("closed"));
+        restaurant.setStatus(Optional.ofNullable(requestDTO.getStatus()).orElse(RestaurantStatus.CLOSED));
         restaurant.setActive(true);
 
         if (requestDTO.getManagerId() != null) {
@@ -104,10 +105,19 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RestaurantResponseDTO> getRestaurantsByStatus(String status) {
+    public List<RestaurantResponseDTO> getRestaurantsByStatus(RestaurantStatus status) {
         return restaurantRepository.findByStatus(status).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public RestaurantResponseDTO updateRestaurantStatus(Long id, RestaurantStatus status) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurante no encontrado"));
+        restaurant.setStatus(status);
+        Restaurant saved = restaurantRepository.save(restaurant);
+        return mapToResponseDTO(saved);
     }
 
     private RestaurantResponseDTO mapToResponseDTO(Restaurant restaurant) {
