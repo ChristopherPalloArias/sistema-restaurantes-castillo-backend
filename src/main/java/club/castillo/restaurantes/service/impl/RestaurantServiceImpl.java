@@ -1,0 +1,131 @@
+package club.castillo.restaurantes.service.impl;
+
+import club.castillo.restaurantes.dto.RestaurantRequestDTO;
+import club.castillo.restaurantes.dto.RestaurantResponseDTO;
+import club.castillo.restaurantes.model.Restaurant;
+import club.castillo.restaurantes.model.User;
+import club.castillo.restaurantes.repository.RestaurantRepository;
+import club.castillo.restaurantes.repository.UserRepository;
+import club.castillo.restaurantes.service.RestaurantService;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class RestaurantServiceImpl implements RestaurantService {
+
+    private final RestaurantRepository restaurantRepository;
+    private final UserRepository userRepository;
+
+    @Override
+    public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO requestDTO) {
+        Restaurant restaurant = new Restaurant();
+        restaurant.setName(requestDTO.getName());
+        restaurant.setAddress(requestDTO.getAddress());
+        restaurant.setStatus(Optional.ofNullable(requestDTO.getStatus()).orElse("closed"));
+        restaurant.setActive(true);
+
+        if (requestDTO.getManagerId() != null) {
+            User manager = userRepository.findById(requestDTO.getManagerId())
+                    .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+            restaurant.setManager(manager);
+        }
+
+        Restaurant saved = restaurantRepository.save(restaurant);
+        return mapToResponseDTO(saved);
+    }
+
+    @Override
+    public RestaurantResponseDTO updateRestaurant(Long id, RestaurantRequestDTO requestDTO) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurante no encontrado"));
+
+        restaurant.setName(requestDTO.getName());
+        restaurant.setAddress(requestDTO.getAddress());
+        if (requestDTO.getStatus() != null) {
+            restaurant.setStatus(requestDTO.getStatus());
+        }
+        if (requestDTO.getManagerId() != null) {
+            User manager = userRepository.findById(requestDTO.getManagerId())
+                    .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+            restaurant.setManager(manager);
+        }
+
+        Restaurant updated = restaurantRepository.save(restaurant);
+        return mapToResponseDTO(updated);
+    }
+
+    @Override
+    public void disableRestaurant(Long id) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurante no encontrado"));
+        restaurant.setActive(false);
+        restaurantRepository.save(restaurant);
+    }
+
+    @Override
+    public void enableRestaurant(Long id) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurante no encontrado"));
+        restaurant.setActive(true);
+        restaurantRepository.save(restaurant);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RestaurantResponseDTO getRestaurantById(Long id) {
+        Restaurant restaurant = restaurantRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurante no encontrado"));
+        return mapToResponseDTO(restaurant);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RestaurantResponseDTO> getAllRestaurants() {
+        return restaurantRepository.findAll().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RestaurantResponseDTO> getAllActiveRestaurants() {
+        return restaurantRepository.findByActiveTrue().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RestaurantResponseDTO> getRestaurantsByStatus(String status) {
+        return restaurantRepository.findByStatus(status).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private RestaurantResponseDTO mapToResponseDTO(Restaurant restaurant) {
+        RestaurantResponseDTO.ManagerDTO managerDTO = null;
+        if (restaurant.getManager() != null) {
+            managerDTO = RestaurantResponseDTO.ManagerDTO.builder()
+                    .id(restaurant.getManager().getId())
+                    .name(restaurant.getManager().getName())
+                    .email(restaurant.getManager().getEmail())
+                    .build();
+        }
+        return RestaurantResponseDTO.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .address(restaurant.getAddress())
+                .status(restaurant.getStatus())
+                .active(restaurant.getActive())
+                .manager(managerDTO)
+                .build();
+    }
+}
