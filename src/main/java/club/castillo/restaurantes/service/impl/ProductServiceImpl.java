@@ -27,6 +27,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductPriceRepository productPriceRepository;
     private final ProductSizeRepository productSizeRepository;
     private final ProductAccompanimentRepository productAccompanimentRepository;
+    private final RestaurantRepository restaurantRepository;
 
     @Override
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
@@ -168,6 +169,9 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
 
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("Restaurante no encontrado"));
+
         // Desactivar precios anteriores que se superpongan con el nuevo período
         List<ProductPrice> existingPrices = productPriceRepository
                 .findByProductIdAndRestaurantIdAndActiveTrue(productId, restaurantId);
@@ -183,7 +187,7 @@ public class ProductServiceImpl implements ProductService {
 
         ProductPrice newPrice = ProductPrice.builder()
                 .product(product)
-                .restaurant(null) // TODO: Obtener restaurant del repositorio
+                .restaurant(restaurant)
                 .price(price)
                 .validFrom(validFrom)
                 .validUntil(validUntil)
