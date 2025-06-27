@@ -5,8 +5,10 @@ import club.castillo.restaurantes.dto.RestaurantResponseDTO;
 import club.castillo.restaurantes.model.Restaurant;
 import club.castillo.restaurantes.model.RestaurantStatus;
 import club.castillo.restaurantes.model.User;
+import club.castillo.restaurantes.model.Zone;
 import club.castillo.restaurantes.repository.RestaurantRepository;
 import club.castillo.restaurantes.repository.UserRepository;
+import club.castillo.restaurantes.repository.ZoneRepository;
 import club.castillo.restaurantes.service.RestaurantService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
     private final UserRepository userRepository;
+    private final ZoneRepository zoneRepository;
 
     @Override
     public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO requestDTO) {
@@ -37,6 +40,12 @@ public class RestaurantServiceImpl implements RestaurantService {
             User manager = userRepository.findById(requestDTO.getManagerId())
                     .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
             restaurant.setManager(manager);
+        }
+
+        if (requestDTO.getZoneId() != null) {
+            Zone zone = zoneRepository.findById(requestDTO.getZoneId())
+                    .orElseThrow(() -> new EntityNotFoundException("Zona no encontrada"));
+            restaurant.setZone(zone);
         }
 
         Restaurant saved = restaurantRepository.save(restaurant);
@@ -53,10 +62,17 @@ public class RestaurantServiceImpl implements RestaurantService {
         if (requestDTO.getStatus() != null) {
             restaurant.setStatus(requestDTO.getStatus());
         }
+
         if (requestDTO.getManagerId() != null) {
             User manager = userRepository.findById(requestDTO.getManagerId())
                     .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
             restaurant.setManager(manager);
+        }
+
+        if (requestDTO.getZoneId() != null) {
+            Zone zone = zoneRepository.findById(requestDTO.getZoneId())
+                    .orElseThrow(() -> new EntityNotFoundException("Zona no encontrada"));
+            restaurant.setZone(zone);
         }
 
         Restaurant updated = restaurantRepository.save(restaurant);
@@ -129,6 +145,14 @@ public class RestaurantServiceImpl implements RestaurantService {
                     .email(restaurant.getManager().getEmail())
                     .build();
         }
+
+        Long zoneId = null;
+        String zoneName = null;
+        if (restaurant.getZone() != null) {
+            zoneId = restaurant.getZone().getId();
+            zoneName = restaurant.getZone().getName();
+        }
+
         return RestaurantResponseDTO.builder()
                 .id(restaurant.getId())
                 .name(restaurant.getName())
@@ -136,6 +160,8 @@ public class RestaurantServiceImpl implements RestaurantService {
                 .status(restaurant.getStatus())
                 .active(restaurant.getActive())
                 .manager(managerDTO)
+                .zoneId(zoneId)
+                .zoneName(zoneName)
                 .build();
     }
 }

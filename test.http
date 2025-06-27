@@ -1,0 +1,7 @@
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "cipallo@uce.edu.ec",
+  "password": "123456"
+}

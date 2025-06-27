@@ -38,4 +38,9 @@ public class Restaurant {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @ManyToOne
+    @JoinColumn(name = "zone_id")
+    private Zone zone;
+
+
 }

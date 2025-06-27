@@ -13,6 +13,8 @@ public class RestaurantResponseDTO {
     private RestaurantStatus status;
     private Boolean active;
     private ManagerDTO manager;
+    private Long zoneId;
+    private String zoneName;
 
     @Data
     @Builder
@@ -22,3 +24,4 @@ public class RestaurantResponseDTO {
         private String email;
     }
 }
+

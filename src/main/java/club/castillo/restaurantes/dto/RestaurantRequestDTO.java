@@ -16,4 +16,6 @@ public class RestaurantRequestDTO {
     private Long managerId;
 
     private RestaurantStatus status; // abierto/cerrado
+
+    private Long zoneId;
 }
